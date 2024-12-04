@@ -21,6 +21,7 @@ int main(int argc, char *argv[]) {
         printf("right  | cursor right in paused mode\n");
         printf("space  | toggle on/off cell in paused mode\n");
         printf("s/S    | one step - MUST BE PAUSED\n");
+        printf("c/C    | clear dots\n");
         return 0;
     }
 
