@@ -9,7 +9,7 @@
 int main(int argc, char *argv[]) {
     //check for the --help flag
     if (argc > 1 && strcmp(argv[1], "--help") == 0) {
-        printf("\ngol.c v2\n");
+        printf("\ngol.c v2.5\n");
         printf("originally by John Conway, written in C by plasmaCotton\n");
         printf("\nInstructions:\n");
         printf("--help | show this menu\n");
@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
               break;
           case 's':
           case 'S':
-              if (paused == 1) { UpdateGame(); delay -= 10000; } // 
+              if (paused == 1) { UpdateGame(); delay -= 10000; } //
           case KEY_UP:
               delay +=10000;
               break;
