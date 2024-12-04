@@ -9,14 +9,17 @@
 int main(int argc, char *argv[]) {
     //check for the --help flag
     if (argc > 1 && strcmp(argv[1], "--help") == 0) {
-        printf("\ngol.c v2.5\n");
+        printf("\ngol.c v3\n");
         printf("originally by John Conway, written in C by plasmaCotton\n");
         printf("\nInstructions:\n");
         printf("--help | show this menu\n");
-        printf("k/K    | pause/unpause\n");
+        printf("k/K    | toggle paused/unpaused mode\n");
         printf("q/Q    | quit\n");
-        printf("up     | delay up\n");
-        printf("down   | delay down\n");
+        printf("up     | delay up / cursor up in paused mode\n");
+        printf("down   | delay down / cursor down in paused mode\n");
+        printf("left   | cursor left in paused mode\n");
+        printf("right  | cursor right in paused mode\n");
+        printf("space  | toggle on/off cell in paused mode\n");
         printf("s/S    | one step - MUST BE PAUSED\n");
         return 0;
     }
@@ -34,6 +37,7 @@ int main(int argc, char *argv[]) {
     const char CHARLIST[] = " #";
     const int gameWidth = w.ws_col - 1;
     const int gameHeight = w.ws_row;
+    int cursorXY[] = {0, 0};
     int paused = 0;
     int delay = 50000;
     cell xyMatrix[gameWidth][gameHeight];
@@ -67,11 +71,13 @@ int main(int argc, char *argv[]) {
         return counted;
     }
 
-    void UpdateGame() {
+    void UpdateGame(int active) {
         for (int y = 0; y < gameHeight; y++) {
             for (int x = 0; x < gameWidth; x++) {
 
                 xyMatrix[x][y].surround = CountSurroundingCells(x, y);
+
+                if (active == 0) {
 
                 if (xyMatrix[x][y].surround < 2 && xyMatrix[x][y].type == 1) {
                     NextXYmatrix[x][y].type = 0;
@@ -85,9 +91,14 @@ int main(int argc, char *argv[]) {
                 if (xyMatrix[x][y].surround == 3 && xyMatrix[x][y].type == 0) {
                     NextXYmatrix[x][y].type = 1;
                 }
+
+                }
+
                 if (xyMatrix[x][y].type == 1) { attron(COLOR_PAIR(xyMatrix[x][y].surround)); }
+                if (x == cursorXY[0] && y == cursorXY[1] && active == 1) { attron(COLOR_PAIR(9)); }
                 printw("%c", CHARLIST[xyMatrix[x][y].type]);
                 if (xyMatrix[x][y].type == 1) { attroff(COLOR_PAIR(xyMatrix[x][y].surround)); }
+                if (x == cursorXY[0] && y == cursorXY[1]) { attroff(COLOR_PAIR(9)); }
 
             }
             printw("\n");
@@ -112,17 +123,15 @@ int main(int argc, char *argv[]) {
     init_pair(6, COLOR_RED, COLOR_BLACK);
     init_pair(7, COLOR_RED, COLOR_WHITE);
     init_pair(8, COLOR_WHITE, COLOR_BLACK);
+    init_pair(9, COLOR_BLACK, COLOR_WHITE);
 
     while (1) { //game loop
-      if (paused == 0) { clear(); } //clear the screen
       move(0, 0); //move drawing cursor to the top left
       int drawX = 1; //reset drawing X coordinate
       int drawY = 1; //reset drawing Y coordinate
 
       //draw the game itself
-      if (paused == 0) {
-          UpdateGame();
-      }
+      UpdateGame(paused);
 
       int key = getch(); //read dumbass input
 
@@ -136,12 +145,36 @@ int main(int argc, char *argv[]) {
               break;
           case 's':
           case 'S':
-              if (paused == 1) { UpdateGame(); delay -= 10000; } //
+              if (paused == 1) { UpdateGame(0); }
+              break;
+          case 'c':
+          case 'C':
+              for (int y = 0; y < gameHeight; y++) {
+                  for (int x = 0; x < gameWidth; x++) {
+                      xyMatrix[x][y].type = 0;
+                      NextXYmatrix[x][y].type = 0;
+                  }
+              }
+              refresh();
+              break;
           case KEY_UP:
-              delay +=10000;
+              if (paused == 0) { delay +=10000; }
+              else if (cursorXY[1] > 0) { cursorXY[1] -= 1; }
               break;
           case KEY_DOWN:
-              delay -=10000;
+              if (paused == 0) { delay -=10000; }
+              else if (cursorXY[1] < gameHeight) { cursorXY[1] += 1; }
+              break;
+          case KEY_RIGHT:
+              if (paused == 1 && cursorXY[0] < gameWidth - 1) { cursorXY[0] += 1; }
+              break;
+          case KEY_LEFT:
+              if (paused == 1 && cursorXY[0] > 0) { cursorXY[0] -= 1; }
+              break;
+          case 32:
+              if (paused == 1) {
+                  if (NextXYmatrix[cursorXY[0]][cursorXY[1]].type == 1) { NextXYmatrix[cursorXY[0]][cursorXY[1]].type = 0; } else { NextXYmatrix[cursorXY[0]][cursorXY[1]].type = 1; }
+              }
               break;
       }
 
@@ -162,4 +195,3 @@ int main(int argc, char *argv[]) {
 
   return 0; //if this ever happens, my brain has at least 2 braincells
 
-}
