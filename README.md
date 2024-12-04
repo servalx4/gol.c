@@ -8,3 +8,9 @@ Instructions:
 k/K    | pause/unpause
 
 q/Q    | quit
+
+up     | delay up
+
+down   | delay dow
+
+s/S    | one step
