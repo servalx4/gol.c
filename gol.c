@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
     //check for the --help flag
     if (argc > 1 && strcmp(argv[1], "--help") == 0) {
         printf("\ngol.c v3\n");
-        printf("originally by John Conway, written in C by plasmaCotton\n");
+        printf("originally by John Conway, written in C by sunlitHorizon\n");
         printf("\nInstructions:\n");
         printf("--help | show this menu\n");
         printf("k/K    | toggle paused/unpaused mode\n");
